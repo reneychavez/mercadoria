@@ -22,10 +22,10 @@ module.exports = {
         let json = {error:'', result:{}};
 
         let id = req.params.id;
-        let mercadoo = await MercadoService.buscarUmId(id);
+        let mercado = await MercadoService.buscarUmId(id);
 
-        if(mercadoo){
-            json.result = mercadoo;
+        if(mercado){
+            json.result = mercado;
         }
 
         res.json(json)
