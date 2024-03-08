@@ -40,7 +40,7 @@ module.exports = {
         let stock = req.body.stock;
     
         try {
-            // Verificar se o produto já existe pelo nome
+            // Verifica se o item já existe pelo nome
             const existingProduct = await MercadoService.buscarUm(name);
             if (existingProduct) {
                 return res.status(409).json({ message: 'Produto já existe.' });
@@ -81,24 +81,32 @@ module.exports = {
         let stock = req.body.stock;
     
         try {
-            // Verificar se o produto já existe pelo nome, excluindo o próprio produto que está sendo alterado
-            const existingProduct = await MercadoService.buscarUm(name);
-            if (existingProduct) {
-                return res.status(409).json({ message: 'Já existe um item com esse nome.' });
+            // Verifica se o item já existe pelo ID
+            const existingProduct = await MercadoService.buscarUmId(id);
+            if (!existingProduct) {
+                return res.status(404).json({ message: 'Produto não encontrado.' });
             }
     
-            if (id && name && price && stock) {
-                await MercadoService.alterar(id, name, description, price, stock);
-                json.result = {
-                    id,
-                    name,
-                    description,
-                    price,
-                    stock
-                };
-            } else {
-                json.error = 'Campos não preenchidos.';
+            // Verifica se o nome do item fornecido é diferente do nome atual e se já existe outro produto com o novo nome
+            if (name !== existingProduct.name) {
+                const anotherProductWithSameName = await MercadoService.buscarUm(name);
+                if (anotherProductWithSameName) {
+                    return res.status(409).json({ message: 'Já existe um item com esse nome.' });
+                }
             }
+            // Verifica se o valor do item é positivo
+            if (price <= 0) {
+                return res.status(400).json({ message: 'O preço do item deve ser um valor positivo.' });
+            }
+    
+            await MercadoService.alterar(id, name, description, price, stock);
+            json.result = {
+                id,
+                name,
+                description,
+                price,
+                stock
+            };
             res.json(json);
         } catch (error) {
             console.error('Erro ao alterar o produto:', error);
