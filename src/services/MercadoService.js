@@ -11,7 +11,20 @@ module.exports = {
         })
     },
 
-    buscarUm: (id) => {
+    buscarUm: (name) => {
+        return new Promise((aceito, rejeitado)=>{
+
+            db.query('SELECT * FROM mercado WHERE name = ?', [name], (error, results)=>{
+                if(error) { rejeitado(error); return; }
+                if(results.length > 0){
+                    aceito(results[0]);
+                }
+                    aceito(null);
+            });
+        });
+    },
+
+    buscarUmId: (id) => {
         return new Promise((aceito, rejeitado)=>{
 
             db.query('SELECT * FROM mercado WHERE id = ?', [id], (error, results)=>{
